@@ -62,8 +62,8 @@ export async function GET() {
   const stored = loadStoredPresence();
   const now = Date.now();
 
-  // Freshness check: if last heartbeat arrived within 25 seconds
-  const isHeartbeatFresh = stored && (now - stored.lastHeartbeat < 25000);
+  // Freshness check: if last heartbeat arrived within 60 seconds
+  const isHeartbeatFresh = stored && (now - stored.lastHeartbeat < 60000);
 
   // If we have an active, fresh online presence
   if (stored && isHeartbeatFresh && stored.status === "online" && stored.fileName) {
