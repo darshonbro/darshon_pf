@@ -348,26 +348,26 @@ export default function DiscordPresenceSection() {
 
   const cardOpacity = useTransform(
     scrollYProgress,
-    [0.10, 0.26, 0.46, 0.68],
+    [0.02, 0.14, 0.82, 0.98],
     [0, 1, 1, 0]
   );
   const cardY = useTransform(
     scrollYProgress,
-    [0.10, 0.26, 0.46, 0.68],
-    [45, 0, 0, -50]
+    [0.02, 0.14, 0.82, 0.98],
+    [20, 0, 0, -30]
   );
   const cardScale = useTransform(
     scrollYProgress,
-    [0.10, 0.26, 0.46, 0.68],
-    [0.92, 1, 1, 0.88]
+    [0.02, 0.14, 0.82, 0.98],
+    [0.98, 1, 1, 0.96]
   );
   const cardFilter = useTransform(
     scrollYProgress,
-    [0.10, 0.24, 0.46, 0.66],
-    ["blur(12px)", "blur(0px)", "blur(0px)", "blur(14px)"]
+    [0.02, 0.12, 0.82, 0.96],
+    ["blur(6px)", "blur(0px)", "blur(0px)", "blur(8px)"]
   );
   const cardPointerEvents = useTransform(scrollYProgress, (p) =>
-    p >= 0.18 && p <= 0.64 ? "auto" : "none"
+    p >= 0.05 && p <= 0.92 ? "auto" : "none"
   );
 
   // ---------------------------------------------------------------------------
@@ -482,7 +482,7 @@ export default function DiscordPresenceSection() {
     <section
       id="discord-hub"
       ref={containerRef}
-      className="relative min-h-[90vh] py-10 px-4 flex flex-col items-center justify-center select-none overflow-hidden"
+      className="relative py-8 sm:py-14 px-4 flex flex-col items-center justify-center select-none overflow-hidden"
     >
       {/* Real Audio Player for C:\Users\darsh\OneDrive\Pictures\MUSIC\1110 (1).mp3 */}
       <audio

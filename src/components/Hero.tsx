@@ -26,45 +26,44 @@ export default function Hero() {
   });
 
   // =========================================================================
-  // STAGE 1 (PROGRESS 0.0 -> 0.32): ONLY "DARSHON"
+  // STAGE 1 (PROGRESS 0.0 -> 0.22): ONLY "DARSHON"
   // Initially only the massive typographic DARSHON fills the 100vh screen.
   // As user starts scrolling, it smoothly dissolves into darkness without clipping.
   // =========================================================================
-  const s1Opacity = useTransform(scrollYProgress, [0, 0.10, 0.30], [1, 1, 0]);
-  const s1Scale = useTransform(scrollYProgress, [0, 0.30], [1, 0.88]);
-  const s1Y = useTransform(scrollYProgress, [0, 0.30], [0, -40]);
-  const s1Display = useTransform(scrollYProgress, (p) => (p > 0.35 ? "none" : "flex"));
+  const s1Opacity = useTransform(scrollYProgress, [0, 0.08, 0.22], [1, 1, 0]);
+  const s1Scale = useTransform(scrollYProgress, [0, 0.22], [1, 0.90]);
+  const s1Y = useTransform(scrollYProgress, [0, 0.22], [0, -30]);
+  const s1Display = useTransform(scrollYProgress, (p) => (p > 0.25 ? "none" : "flex"));
 
   // =========================================================================
-  // STAGE 2 (PROGRESS 0.20 -> 0.98): IDENTITY, BIO & LIVE PRESENCE HUD
+  // STAGE 2 (PROGRESS 0.12 -> 1.0): IDENTITY, BIO & LIVE PRESENCE HUD
   // As DARSHON dissolves, Stage 2 smoothly emerges with generous overlap.
-  // Kept hidden when scroll is at top to completely prevent backdrop-blur artifacts.
   // =========================================================================
   const s2Opacity = useTransform(
     scrollYProgress,
-    [0.20, 0.35, 0.82, 0.98],
+    [0.12, 0.24, 0.90, 1.0],
     [0, 1, 1, 0]
   );
   const s2Y = useTransform(
     scrollYProgress,
-    [0.20, 0.35, 0.82, 0.98],
-    [30, 0, 0, -40]
+    [0.12, 0.24, 0.90, 1.0],
+    [25, 0, 0, -30]
   );
   const s2Scale = useTransform(
     scrollYProgress,
-    [0.20, 0.35, 0.82, 0.98],
-    [0.95, 1, 1, 0.92]
+    [0.12, 0.24, 0.90, 1.0],
+    [0.96, 1, 1, 0.95]
   );
-  const s2Display = useTransform(scrollYProgress, (p) => (p < 0.16 ? "none" : "flex"));
+  const s2Display = useTransform(scrollYProgress, (p) => (p < 0.10 ? "none" : "flex"));
   const s2PointerEvents = useTransform(scrollYProgress, (p) =>
-    p >= 0.22 && p <= 0.95 ? "auto" : "none"
+    p >= 0.14 && p <= 0.98 ? "auto" : "none"
   );
 
   return (
     <section
       id="hero"
       ref={containerRef}
-      className="relative w-full h-[180vh] bg-transparent select-none"
+      className="relative w-full h-[125vh] bg-transparent select-none"
     >
       {/* Sticky Fullscreen Frame (Pins at top while scrolling through the track) */}
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden px-4">
