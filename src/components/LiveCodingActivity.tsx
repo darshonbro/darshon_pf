@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Gamepad2, Wifi, Sparkles, CheckCircle2 } from "lucide-react";
+import { Gamepad2, CheckCircle2, Code2 } from "lucide-react";
 
 export interface DiscordPresenceData {
   appName: string;
@@ -12,7 +12,7 @@ export interface DiscordPresenceData {
   language: string;
   startTime: number;
   lastHeartbeat: number;
-  status: "online" | "idle";
+  status: "online" | "idle" | "offline";
   source: "agent" | "local_scan";
 }
 
@@ -133,18 +133,18 @@ const ICON_MAP: Record<string, string> = {
 export default function LiveCodingActivity() {
   const [presence, setPresence] = useState<DiscordPresenceData>({
     appName: "Code",
-    workspace: "In Jahid_Hasan - 0 problems found",
-    details: "Working on validator.ts:1:1",
-    fileName: "validator.ts",
+    workspace: "No active development session",
+    details: "Offline — Inactive",
+    fileName: "",
     extension: "ts",
     language: "TypeScript",
-    startTime: Date.now() - 1000 * 60 * 93 - 1000 * 15,
-    lastHeartbeat: Date.now(),
-    status: "online",
-    source: "local_scan",
+    startTime: 0,
+    lastHeartbeat: 0,
+    status: "offline",
+    source: "agent",
   });
 
-  const [elapsed, setElapsed] = useState("1:33:15");
+  const [elapsed, setElapsed] = useState("00:00");
 
   // Instant 0ms Server-Sent Events (SSE) Stream + Fast Polling Fallback
   useEffect(() => {
@@ -157,14 +157,14 @@ export default function LiveCodingActivity() {
       eventSource.onmessage = (event) => {
         try {
           const data: DiscordPresenceData = JSON.parse(event.data);
-          if (isMounted && data && data.fileName) {
+          if (isMounted && data) {
             setPresence(data);
           }
         } catch {}
       };
     } catch {}
 
-    // Fast polling fallback (every 1200ms) for maximum reliability
+    // Fast polling fallback (every 1000ms) for instant responsiveness
     const fetchPresence = async () => {
       try {
         const res = await fetch("/api/activity", { cache: "no-store" });
@@ -178,7 +178,7 @@ export default function LiveCodingActivity() {
     };
 
     fetchPresence();
-    const interval = setInterval(fetchPresence, 1200);
+    const interval = setInterval(fetchPresence, 1000);
 
     return () => {
       isMounted = false;
@@ -189,10 +189,13 @@ export default function LiveCodingActivity() {
     };
   }, []);
 
-  // Live real-time timer ticking every 1000ms
+  // Live real-time timer ticking every 1000ms from startTime (when IDE opens)
   useEffect(() => {
     const updateTimer = () => {
-      if (!presence.startTime) return;
+      if (!presence.startTime || presence.startTime <= 0 || presence.status !== "online") {
+        setElapsed("00:00");
+        return;
+      }
       const totalSeconds = Math.max(0, Math.floor((Date.now() - presence.startTime) / 1000));
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -210,7 +213,9 @@ export default function LiveCodingActivity() {
     updateTimer();
     const timer = setInterval(updateTimer, 1000);
     return () => clearInterval(timer);
-  }, [presence.startTime]);
+  }, [presence.startTime, presence.status]);
+
+  const isOnline = presence.status === "online" && !!presence.fileName;
 
   const extKey = (presence.extension || "ts").toLowerCase().replace(".", "");
   const iconName = ICON_MAP[extKey] || "ts";
@@ -236,11 +241,11 @@ export default function LiveCodingActivity() {
         {/* Top Ribbon */}
         <div className="flex items-center justify-between gap-3 mb-3.5">
           <span className="font-mono text-[10px] sm:text-[11px] font-bold tracking-[0.2em] text-zinc-400 uppercase">
-            PLAYING NOW
+            {isOnline ? "PLAYING NOW" : "ACTIVITY STATUS"}
           </span>
 
           <div className="flex items-center gap-2">
-            {presence.status === "online" ? (
+            {isOnline ? (
               <>
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -253,10 +258,10 @@ export default function LiveCodingActivity() {
             ) : (
               <>
                 <span className="relative flex h-2 w-2">
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400/80" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-zinc-500" />
                 </span>
-                <span className="font-mono text-[10px] font-bold tracking-wider text-amber-400 uppercase">
-                  IDLE
+                <span className="font-mono text-[10px] font-bold tracking-wider text-zinc-400 uppercase">
+                  OFFLINE
                 </span>
               </>
             )}
@@ -265,28 +270,34 @@ export default function LiveCodingActivity() {
 
         {/* Main Body Layout matching Discord Rich Presence Screenshot */}
         <div className="flex items-center gap-3.5 sm:gap-4">
-          {/* Large Square Asset (Official Full-Color Language SVG Logo + VS Code Sub-badge) */}
+          {/* Large Square Asset */}
           <div className="relative shrink-0">
             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-b from-[#181c28] to-[#0c0e16] p-2.5 sm:p-3 flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.12)] border border-white/[0.12] group-hover:border-white/25 transition-all select-none overflow-hidden">
-              {!imgError ? (
-                <img
-                  src={`/icons/langs/${iconName}.svg`}
-                  alt={presence.language}
-                  className="w-full h-full object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
-                  onError={() => setImgError(true)}
-                />
+              {isOnline ? (
+                !imgError ? (
+                  <img
+                    src={`/icons/langs/${iconName}.svg`}
+                    alt={presence.language}
+                    className="w-full h-full object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
+                    onError={() => setImgError(true)}
+                  />
+                ) : (
+                  <div
+                    className={`w-full h-full rounded-xl ${badgeConfig.bg} flex items-center justify-center font-black font-mono text-sm sm:text-base ${badgeConfig.text}`}
+                  >
+                    {badgeConfig.label}
+                  </div>
+                )
               ) : (
-                <div
-                  className={`w-full h-full rounded-xl ${badgeConfig.bg} flex items-center justify-center font-black font-mono text-sm sm:text-base ${badgeConfig.text}`}
-                >
-                  {badgeConfig.label}
+                <div className="w-full h-full flex items-center justify-center text-zinc-600">
+                  <Code2 className="w-7 h-7 text-zinc-500" />
                 </div>
               )}
             </div>
 
             {/* Small Overlay Icon (VS Code Logo in bottom right) */}
             <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#0a0c13] border border-white/20 flex items-center justify-center shadow-md p-0.5">
-              <VSCodeBadge className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <VSCodeBadge className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-80" />
             </div>
           </div>
 
@@ -295,26 +306,28 @@ export default function LiveCodingActivity() {
             {/* Application Name */}
             <div className="flex items-center gap-1.5">
               <h3 className="text-base sm:text-lg font-bold font-sans text-white tracking-tight leading-tight">
-                {presence.appName}
+                {presence.appName || "Code"}
               </h3>
-              <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
+              {isOnline && <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />}
             </div>
 
             {/* State (Workspace & Problems) */}
             <p className="text-xs sm:text-sm text-zinc-300 font-sans mt-0.5 truncate leading-tight">
-              {presence.workspace}
+              {isOnline ? presence.workspace : "No active development session"}
             </p>
 
             {/* Details (Active File & Line) */}
             <p className="text-xs text-zinc-400 font-sans mt-0.5 truncate leading-tight">
-              {presence.details}
+              {isOnline ? presence.details : "Offline — Currently away from keyboard"}
             </p>
 
-            {/* Live Ticking Elapsed Timer */}
-            <div className="flex items-center gap-1.5 mt-1 text-xs font-mono font-medium text-emerald-400 tabular-nums">
-              <Gamepad2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>{elapsed}</span>
-            </div>
+            {/* Live Ticking Elapsed Timer — ONLY SHOWN WHEN ONLINE AND IDE IS OPEN */}
+            {isOnline && presence.startTime > 0 && (
+              <div className="flex items-center gap-1.5 mt-1 text-xs font-mono font-medium text-emerald-400 tabular-nums">
+                <Gamepad2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>{elapsed}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

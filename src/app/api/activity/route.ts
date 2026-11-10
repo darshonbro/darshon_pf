@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { getLatestWorkspaceActivity } from "@/lib/activityTracker";
 import { activityEmitter } from "@/lib/activityEvents";
 
 export const dynamic = "force-dynamic";
@@ -16,14 +15,17 @@ export interface DiscordPresenceData {
   language: string;
   startTime: number;
   lastHeartbeat: number;
-  status: "online" | "idle";
+  status: "online" | "idle" | "offline";
   source: "agent" | "local_scan";
 }
 
-// In-memory cache for ultra-fast sub-5ms responses
 let memoryPresence: DiscordPresenceData | null = null;
 
 function getStorePath(): string {
+  // Support writable /tmp on serverless (Vercel)
+  if (process.env.VERCEL) {
+    return path.join("/tmp", "live_presence.json");
+  }
   const dataDir = path.join(process.cwd(), "src", "data");
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
@@ -32,18 +34,18 @@ function getStorePath(): string {
 }
 
 function loadStoredPresence(): DiscordPresenceData | null {
-  if (memoryPresence) return memoryPresence;
   try {
     const storePath = getStorePath();
     if (fs.existsSync(storePath)) {
       const raw = fs.readFileSync(storePath, "utf-8");
-      memoryPresence = JSON.parse(raw);
-      return memoryPresence;
+      const parsed: DiscordPresenceData = JSON.parse(raw);
+      memoryPresence = parsed;
+      return parsed;
     }
   } catch {
     // Ignore read errors
   }
-  return null;
+  return memoryPresence;
 }
 
 function saveStoredPresence(data: DiscordPresenceData) {
@@ -60,77 +62,50 @@ export async function GET() {
   const stored = loadStoredPresence();
   const now = Date.now();
 
-  // If we have stored presence data
-  if (stored && stored.fileName && !stored.fileName.startsWith("scratch_")) {
-    const isRecent = now - stored.lastHeartbeat < 1000 * 60 * 15;
+  // Freshness check: if last heartbeat arrived within 25 seconds
+  const isHeartbeatFresh = stored && (now - stored.lastHeartbeat < 25000);
+
+  // If we have an active, fresh online presence
+  if (stored && isHeartbeatFresh && stored.status === "online" && stored.fileName) {
     return NextResponse.json(
       {
         ...stored,
-        status: isRecent ? (stored.status || "online") : "idle",
-      },
-      {
-        headers: {
-          "Cache-Control": "no-store, max-age=0",
-        },
-      }
-    );
-  }
-
-  // Otherwise, automatically fall back to workspace activity or validator.ts
-  try {
-    const local = getLatestWorkspaceActivity();
-    const safeFile = local.file || "validator.ts";
-    const safeExt = local.extension || "ts";
-    const safeLang = local.language || "TypeScript";
-
-    const fallback: DiscordPresenceData = {
-      appName: "Code",
-      workspace: `In ${local.workspace || "Jahid_Hasan"} - 0 problems found`,
-      details: `Working on ${safeFile}:1:1`,
-      fileName: safeFile,
-      extension: safeExt,
-      language: safeLang,
-      startTime: now - 1000 * 60 * 93 - 1000 * 15,
-      lastHeartbeat: now,
-      status: "online",
-      source: "agent",
-    };
-
-    return NextResponse.json(fallback, {
-      headers: {
-        "Cache-Control": "no-store, max-age=0",
-      },
-    });
-  } catch {
-    return NextResponse.json(
-      {
-        appName: "Code",
-        workspace: "In Jahid_Hasan - 0 problems found",
-        details: "Working on validator.ts:1:1",
-        fileName: "validator.ts",
-        extension: "ts",
-        language: "TypeScript",
-        startTime: now - 1000 * 60 * 93 - 1000 * 15,
-        lastHeartbeat: now,
         status: "online",
-        source: "agent",
       },
       {
         headers: {
-          "Cache-Control": "no-store, max-age=0",
+          "Cache-Control": "no-store, max-age=0, must-revalidate",
         },
-        status: 200,
       }
     );
   }
+
+  // When IDE is closed or heartbeat is stale (> 25s), return clean OFFLINE state
+  const offlinePacket: DiscordPresenceData = {
+    appName: "Code",
+    workspace: "No active development session",
+    details: "Offline — Inactive",
+    fileName: "",
+    extension: "ts",
+    language: "TypeScript",
+    startTime: 0,
+    lastHeartbeat: stored ? stored.lastHeartbeat : now,
+    status: "offline",
+    source: "agent",
+  };
+
+  return NextResponse.json(offlinePacket, {
+    headers: {
+      "Cache-Control": "no-store, max-age=0, must-revalidate",
+    },
+  });
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // ─── Zombie Daemon Drop ──────────────────────────────────────────
-    // Reject any packet from old legacy agents (which lack version "2.0")
+    // Reject legacy agent versions
     if (body.version !== "2.0") {
       return NextResponse.json(
         { success: false, message: "Ignored legacy daemon packet" },
@@ -139,13 +114,41 @@ export async function POST(req: NextRequest) {
     }
 
     const now = Date.now();
-    const isIdle = body.status === "idle";
+    const isOffline = body.status === "offline" || body.status === "idle" || !body.status;
 
+    // Handle offline / closed IDE state
+    if (isOffline || !body.fileName) {
+      const offlinePacket: DiscordPresenceData = {
+        appName: "Code",
+        workspace: "No active development session",
+        details: "Offline — Inactive",
+        fileName: "",
+        extension: "ts",
+        language: "TypeScript",
+        startTime: 0,
+        lastHeartbeat: now,
+        status: "offline",
+        source: "agent",
+      };
+
+      saveStoredPresence(offlinePacket);
+      try {
+        activityEmitter.emit("activity", offlinePacket);
+      } catch {}
+
+      return NextResponse.json({
+        success: true,
+        status: "offline",
+        syncedAt: now,
+      });
+    }
+
+    // Active online presence validation
     let cleanFile = (body.fileName || "").trim();
     let cleanWorkspace = (body.workspace || "In Jahid_Hasan - 0 problems found").trim();
     let details = (body.details || "").trim();
 
-    // Reject folder names being passed as file names
+    // Reject invalid files
     const isFolder =
       !cleanFile.includes(".") ||
       cleanFile.toLowerCase() === "owo-farmer" ||
@@ -153,7 +156,7 @@ export async function POST(req: NextRequest) {
       cleanFile.toLowerCase() === "nexus" ||
       cleanFile.toLowerCase() === "darshon_portfolio";
 
-    if (isFolder || !cleanFile) {
+    if (isFolder) {
       return NextResponse.json(
         { success: false, message: "Folder name rejected" },
         { status: 200 }
@@ -169,13 +172,13 @@ export async function POST(req: NextRequest) {
     const packet: DiscordPresenceData = {
       appName: body.appName || "Code",
       workspace: cleanWorkspace,
-      details: details || (isIdle ? "Idle — Not coding right now" : `Working on ${cleanFile}:1:1`),
+      details: details || `Working on ${cleanFile}:1:1`,
       fileName: cleanFile,
       extension: ext,
       language: body.language || "TypeScript",
-      startTime: Number(body.startTime) || now - 1000 * 60 * 15,
+      startTime: Number(body.startTime) || now,
       lastHeartbeat: now,
-      status: isIdle ? "idle" : "online",
+      status: "online",
       source: "agent",
     };
 
@@ -186,9 +189,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      status: "online",
       syncedAt: now,
       fileName: packet.fileName,
       workspace: packet.workspace,
+      startTime: packet.startTime,
     });
   } catch (err: unknown) {
     console.error("CRITICAL ACTIVITY POST ERROR:", err);
