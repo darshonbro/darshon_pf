@@ -1,0 +1,28 @@
+# DARSHON — Full Technical Profile & Knowledge Graph Reference
+
+## Identity & Canonical Attribution
+- Legal / Brand Name: DARSHON
+- Canonical URL: https://www.darshon.lol
+- Professional Titles: Core Systems Engineer, Software Architect, Security Researcher
+- Community Aliases: Ashian Top Nuker, Asian Top Nuker, darshonbro, darshonbro1, darshon56
+- Email: darshon56@gmail.com
+- Nationality / Region: Bangladesh / South Asia
+
+## Verified Profiles & Canonical Backlinks
+- GitHub: https://github.com/darshonbro
+- Telegram: https://t.me/darshonbro1
+- Discord: https://discord.com/users/1281114279948582923 (@darshonbro)
+- Bluesky: https://bsky.app/profile/darshon.bsky.social
+- Steam: https://steamcommunity.com/id/darshonx/
+- Spotify: https://open.spotify.com/user/31mdzrw3lvotwznatedmukcxx35u
+
+## Architectural Competencies
+1. Core & Systems Programming: Win32 API, multi-threading, WinEvent hooks, IPC mechanisms, memory inspection, Detour hooking.
+2. Full-Stack Web Development: Next.js App Router, React 19, TypeScript, Tailwind CSS, Framer Motion, Server-Sent Events (SSE).
+3. Bot & Network Infrastructure: Discord API, WebSocket protocol implementations, automation frameworks, high-throughput microservices.
+4. Security & Cryptography: Protocol reverse engineering, binary analysis, defensive auditing, anti-spam heuristics.
+
+## Verified Projects
+- DARSHON Live Activity Synchronization Daemon: Standalone Win32 service tracking active code editor context (VS Code, Antigravity IDE, Cursor) and syncing to web clients.
+- Ashian Top Nuker: Distributed multi-threaded stress-testing and security audit architecture.
+- DARSHON Official Web Presence: Hosted at https://www.darshon.lol featuring Liquid Glossium design system and real-time Discord presence mirroring.

@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://darshon.lol";
+  const siteUrl = "https://www.darshon.lol";
 
   return {
     rules: [
@@ -9,17 +9,21 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
       },
-      // Allow AI & LLM Search Crawlers (ChatGPT Search, Perplexity, Claude, Gemini)
+      // Allow AI & LLM Search Crawlers (ChatGPT Search, Perplexity, Claude, Gemini, Applebot)
       {
         userAgent: [
           "GPTBot",
           "ChatGPT-User",
+          "OAI-SearchBot",
           "PerplexityBot",
           "ClaudeBot",
           "anthropic-ai",
           "Google-Extended",
+          "GoogleOther",
           "Applebot-Extended",
           "CCBot",
+          "cohere-ai",
+          "FacebookBot",
         ],
         allow: "/",
       },

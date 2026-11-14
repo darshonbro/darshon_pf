@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://darshon.lol";
+const siteUrl = "https://www.darshon.lol";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -17,51 +17,33 @@ export const metadata: Metadata = {
     template: "%s | DARSHON",
   },
   description:
-    "Official engineering portfolio of DARSHON. Software Architect & Core Systems Engineer specializing in high-performance distributed systems, low-latency architecture, reverse engineering, and full-stack engineering.",
+    "Official engineering portfolio of DARSHON (Ashian Top Nuker). Software Architect & Core Systems Engineer specializing in low-latency distributed systems, reverse engineering, kernel architecture, and full-stack engineering.",
   applicationName: "DARSHON Portfolio",
   authors: [{ name: "DARSHON", url: siteUrl }],
   generator: "Next.js",
   keywords: [
-    // Primary Name & Community Alias Variants for Google & LLM Search
+    // Primary Identity & Community Monikers
     "DARSHON",
-    "Darshon",
-    "darshon",
-    "darshon software engineer",
-    "darshon developer",
-    "darshon systems engineer",
-    "darshon architect",
-    "darshon portfolio",
+    "Darshon Official",
+    "DARSHON Portfolio",
+    "Ashian Top Nuker",
+    "Asian Top Nuker",
     "darshonbro",
     "darshonbro1",
     "darshon56",
-    "darshon dev",
-    // Community & Reputation Tags (Requested by User)
-    "Asian top nuker",
-    "asian top nuker",
-    "ashian top nuker",
-    "Asian Nuker",
-    "asian nuker",
-    "top nuker",
-    "nuker",
-    "darshon nuker",
-    "darshon top nuker",
-    "asia top nuker",
-    "top nuker asia",
-    // Core Technical Specializations
-    "Core Systems Engineer",
+    "Darshon Systems Engineer",
+    // Core Engineering Roles & Authority
     "Software Architect",
-    "Low-Latency Systems",
-    "Distributed Systems",
+    "Core Systems Engineer",
+    "Cybersecurity Researcher",
+    "Reverse Engineering Specialist",
+    "Low-Latency Infrastructure",
+    "Distributed Systems Architect",
     "High Performance Computing",
-    "Reverse Engineering",
-    "Memory Architecture",
-    "Kernel Engineering",
-    "TypeScript",
-    "Next.js",
-    "Python",
-    "C++",
-    "Rust",
-    "Full-Stack Architecture",
+    "Next.js & TypeScript Architect",
+    "Discord Bot Infrastructure",
+    "Win32 Kernel & Memory Engineering",
+    "Full-Stack Software Architecture",
   ],
   creator: "DARSHON",
   publisher: "DARSHON",
@@ -71,7 +53,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   alternates: {
-    canonical: "/",
+    canonical: siteUrl,
   },
   openGraph: {
     type: "profile",
@@ -80,16 +62,16 @@ export const metadata: Metadata = {
     gender: "male",
     title: "DARSHON // Core Systems Engineer & Software Architect",
     description:
-      "Engineering portfolio of DARSHON. High-performance distributed systems, low-latency architecture, and full-stack software development.",
+      "Official engineering portfolio of DARSHON (Ashian Top Nuker). High-performance distributed systems, low-latency architecture, and full-stack software development.",
     url: siteUrl,
     siteName: "DARSHON Portfolio",
     locale: "en_US",
     images: [
       {
-        url: "/avatar.gif",
+        url: `${siteUrl}/avatar.gif`,
         width: 256,
         height: 256,
-        alt: "DARSHON - Core Systems Engineer",
+        alt: "DARSHON - Core Systems Engineer & Software Architect",
       },
     ],
   },
@@ -97,8 +79,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DARSHON // Core Systems Engineer & Software Architect",
     description:
-      "Official engineering portfolio of DARSHON — Systems architect, low-latency infrastructure & full-stack development.",
-    images: ["/avatar.gif"],
+      "Official engineering portfolio of DARSHON (Ashian Top Nuker) — Systems architect, low-latency infrastructure & full-stack development.",
+    images: [`${siteUrl}/avatar.gif`],
     creator: "@darshonbro",
   },
   robots: {
@@ -125,34 +107,34 @@ const personSchema = {
       "@id": `${siteUrl}/#person`,
       name: "DARSHON",
       alternateName: [
-        "darshon",
-        "Darshon",
+        "Ashian Top Nuker",
+        "Asian Top Nuker",
         "darshonbro",
         "darshonbro1",
         "darshon56",
-        "Asian top nuker",
-        "asian top nuker",
-        "ashian top nuker",
-        "top nuker",
-        "nuker",
       ],
       jobTitle: "Core Systems Engineer & Software Architect",
       description:
-        "DARSHON is a Software Architect & Core Systems Engineer (widely recognized across technical communities as Asian top nuker) specializing in low-latency infrastructure, high-performance distributed systems, reverse engineering, and full-stack software development.",
+        "DARSHON is a Software Architect & Core Systems Engineer (widely recognized across cybersecurity, gaming, and developer communities as Ashian Top Nuker / Asian Top Nuker) specializing in low-latency infrastructure, high-performance distributed systems, reverse engineering, and full-stack software development.",
       url: siteUrl,
       image: `${siteUrl}/avatar.gif`,
       email: "mailto:darshon56@gmail.com",
       sameAs: [
+        "https://github.com/darshonbro",
         "https://t.me/darshonbro1",
         "https://discord.com/users/1281114279948582923",
+        "https://bsky.app/profile/darshon.bsky.social",
+        "https://steamcommunity.com/id/darshonx/",
+        "https://open.spotify.com/user/31mdzrw3lvotwznatedmukcxx35u",
       ],
       knowsAbout: [
         "Core Systems Engineering",
         "Software Architecture",
         "Distributed Systems",
         "Low-Latency Infrastructure",
-        "Reverse Engineering",
-        "Next.js",
+        "Reverse Engineering & Memory Analysis",
+        "Win32 API & Hooking Architecture",
+        "Next.js & React 19",
         "TypeScript",
         "Python",
         "C++",
@@ -164,7 +146,8 @@ const personSchema = {
       "@id": `${siteUrl}/#website`,
       url: siteUrl,
       name: "DARSHON Portfolio",
-      description: "Official Engineering Portfolio and Real-time Activity of DARSHON.",
+      alternateName: "DARSHON Official Website",
+      description: "Official Engineering Portfolio and Real-time Activity of DARSHON (Ashian Top Nuker).",
       publisher: {
         "@id": `${siteUrl}/#person`,
       },
@@ -196,6 +179,17 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth" suppressHydrationWarning>
       <head>
+        {/* Verification Backlink Network (RFC 8288 / IndieWeb rel="me" for Google Knowledge Graph & LLMs) */}
+        <link rel="me" href="https://github.com/darshonbro" />
+        <link rel="me" href="https://t.me/darshonbro1" />
+        <link rel="me" href="https://discord.com/users/1281114279948582923" />
+        <link rel="me" href="https://bsky.app/profile/darshon.bsky.social" />
+        <link rel="me" href="https://steamcommunity.com/id/darshonx/" />
+        <link rel="me" href="https://open.spotify.com/user/31mdzrw3lvotwznatedmukcxx35u" />
+
+        {/* LLM & AI Search Engine standard discovery endpoint */}
+        <link rel="alternate" type="text/plain" href="https://www.darshon.lol/llms.txt" title="LLM Information" />
+
         {/* Inject JSON-LD Structured Data for Google Search & LLM Engines */}
         <script
           type="application/ld+json"
